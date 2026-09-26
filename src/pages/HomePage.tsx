@@ -2,13 +2,16 @@ import React, { useState, useMemo } from 'react';
 import { useApp } from '../store/AppContext';
 import ItemRow from '../components/ItemRow';
 import EmptyIllustration from '../components/EmptyIllustration';
-import { Category, TransactionType, ItemStatus } from '../types';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import MapView from '../components/MapView';
+import { Category, TransactionType } from '../types';
+import { Search, SlidersHorizontal, MapPin, List } from 'lucide-react';
 
 type SortOption = 'newest' | 'nearest';
+type ViewMode = 'list' | 'map';
 
 export default function HomePage() {
   const { items } = useApp();
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<Category | 'all'>('all');
   const [transactionType, setTransactionType] = useState<TransactionType | 'all'>('all');
@@ -60,14 +63,44 @@ export default function HomePage() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
-      {/* Page header - like top of notebook page */}
-      <div className="mb-8 pb-6 border-b border-lead/20">
-        <h2 className="font-serif text-2xl font-bold text-ink mb-2">
-          những món đồ đang chờ chủ mới
-        </h2>
-        <p className="text-lead text-sm leading-relaxed max-w-xl">
-          Hàng xóm để lại đồ không dùng nữa — bạn ghé xem, lấy về dùng, hoặc đổi lấy thứ khác.
-        </p>
+      {/* Page header */}
+      <div className="mb-6 pb-4 border-b border-lead/20">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-serif text-2xl font-bold text-ink mb-2">
+              những món đồ đang chờ chủ mới
+            </h2>
+            <p className="text-lead text-sm leading-relaxed max-w-xl">
+              hàng xóm để lại đồ không dùng nữa — bạn ghé xem, lấy về dùng, hoặc đổi lấy thứ khác.
+            </p>
+          </div>
+
+          {/* View toggle */}
+          <div className="flex items-center bg-paper-dark/50 border border-lead/20 rounded-sm overflow-hidden flex-shrink-0">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`flex items-center gap-1.5 px-3 py-2 text-sm transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-moss text-paper'
+                  : 'text-lead hover:text-ink'
+              }`}
+            >
+              <List className="w-4 h-4" />
+              <span className="hidden sm:inline">danh sách</span>
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              className={`flex items-center gap-1.5 px-3 py-2 text-sm transition-colors ${
+                viewMode === 'map'
+                  ? 'bg-moss text-paper'
+                  : 'text-lead hover:text-ink'
+              }`}
+            >
+              <MapPin className="w-4 h-4" />
+              <span className="hidden sm:inline">bản đồ</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Search & filter bar */}
@@ -153,23 +186,29 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Items list - notebook style */}
-      {filteredItems.length > 0 ? (
-        <div className="border-t border-lead/20">
-          {filteredItems.map((item, index) => (
-            <ItemRow key={item.id} item={item} />
-          ))}
-        </div>
+      {/* Content: List or Map */}
+      {viewMode === 'list' ? (
+        <>
+          {filteredItems.length > 0 ? (
+            <div className="border-t border-lead/20">
+              {filteredItems.map((item) => (
+                <ItemRow key={item.id} item={item} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <EmptyIllustration />
+              <h3 className="font-serif text-lg text-ink mb-2">
+                chưa có ai để lại gì ở đây
+              </h3>
+              <p className="text-lead text-sm">
+                bạn đăng món đầu tiên nhé — biết đâu hàng xóm đang cần.
+              </p>
+            </div>
+          )}
+        </>
       ) : (
-        <div className="text-center py-16">
-          <EmptyIllustration />
-          <h3 className="font-serif text-lg text-ink mb-2">
-            chưa có ai để lại gì ở đây
-          </h3>
-          <p className="text-lead text-sm">
-            bạn đăng món đầu tiên nhé — biết đâu hàng xóm đang cần.
-          </p>
-        </div>
+        <MapView items={filteredItems} />
       )}
     </div>
   );
