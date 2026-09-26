@@ -9,6 +9,8 @@ import ItemDetailPage from './pages/ItemDetailPage';
 import AuthPage from './pages/AuthPage';
 import MyItemsPage from './pages/MyItemsPage';
 import MyRequestsPage from './pages/MyRequestsPage';
+import MessagesPage from './pages/MessagesPage';
+import ConversationPage from './pages/ConversationPage';
 
 export default function App() {
   return (
@@ -25,6 +27,8 @@ export default function App() {
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/my-items" element={<MyItemsPage />} />
               <Route path="/my-requests" element={<MyRequestsPage />} />
+              <Route path="/messages" element={<MessagesPage />} />
+              <Route path="/messages/:conversationId" element={<ConversationPage />} />
             </Routes>
           </main>
           <footer className="border-t border-lead/20 py-8 mt-12">

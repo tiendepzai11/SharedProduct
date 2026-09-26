@@ -1,13 +1,14 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useApp } from '../store/AppContext';
-import { MapPin, ClipboardList, Package, LogOut } from 'lucide-react';
+import { MapPin, ClipboardList, Package, LogOut, MessageCircle } from 'lucide-react';
 
 export default function Navbar() {
-  const { currentUser, logout } = useApp();
+  const { currentUser, logout, getTotalUnreadCount } = useApp();
   const location = useLocation();
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');
+  const unreadCount = currentUser ? getTotalUnreadCount(currentUser.id) : 0;
 
   return (
     <header className="border-b-2 border-ink/10 bg-paper">
@@ -40,6 +41,20 @@ export default function Navbar() {
               </Link>
               {currentUser && (
                 <>
+                  <Link
+                    to="/messages"
+                    className={`flex items-center gap-1.5 transition-colors relative ${
+                      isActive('/messages') ? 'text-moss font-medium' : 'text-lead hover:text-ink'
+                    }`}
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    tin nhắn
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-3 bg-terracotta text-paper text-xs w-4 h-4 rounded-full flex items-center justify-center font-medium">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </Link>
                   <Link
                     to="/my-items"
                     className={`flex items-center gap-1.5 transition-colors ${

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../store/AppContext';
-import { ArrowLeft, MapPin, Clock, User, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, User, CheckCircle, XCircle, MessageCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 
 export default function ItemDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getItemById, getUserById, currentUser, createRequest, getRequestsForItem, updateRequestStatus } = useApp();
+  const { getItemById, getUserById, currentUser, createRequest, getRequestsForItem, updateRequestStatus, getOrCreateConversation } = useApp();
   const [showConfirm, setShowConfirm] = useState(false);
 
   const item = getItemById(id || '');
@@ -50,6 +50,18 @@ export default function ItemDetailPage() {
   const confirmRequest = () => {
     createRequest(item.id);
     setShowConfirm(false);
+  };
+
+  const handleMessage = () => {
+    if (!currentUser) {
+      navigate('/auth');
+      return;
+    }
+    if (isOwner) return;
+    
+    // Tạo hoặc lấy conversation
+    const conversation = getOrCreateConversation(item.id, item.owner_id, currentUser.id);
+    navigate(`/messages/${conversation.id}`);
   };
 
   return (
@@ -113,13 +125,32 @@ export default function ItemDetailPage() {
             )}
           </div>
 
-          {/* Action button */}
+          {/* Action buttons */}
           {!isOwner && item.status === 'available' && (
+            <div className="flex gap-3">
+              <button
+                onClick={handleRequest}
+                className="flex-1 py-3 bg-moss text-paper font-medium rounded-sm hover:bg-moss-dark transition-colors"
+              >
+                tôi muốn món này
+              </button>
+              <button
+                onClick={handleMessage}
+                className="px-4 py-3 border border-moss text-moss font-medium rounded-sm hover:bg-moss/5 transition-colors flex items-center gap-2"
+              >
+                <MessageCircle className="w-5 h-5" />
+                nhắn tin
+              </button>
+            </div>
+          )}
+
+          {!isOwner && item.status !== 'available' && (
             <button
-              onClick={handleRequest}
-              className="w-full py-3 bg-moss text-paper font-medium rounded-sm hover:bg-moss-dark transition-colors"
+              onClick={handleMessage}
+              className="w-full py-3 border border-moss text-moss font-medium rounded-sm hover:bg-moss/5 transition-colors flex items-center justify-center gap-2"
             >
-              tôi muốn món này
+              <MessageCircle className="w-5 h-5" />
+              nhắn tin với người đăng
             </button>
           )}
 
