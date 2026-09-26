@@ -71,7 +71,7 @@ export default function HomePage() {
               những món đồ đang chờ chủ mới
             </h2>
             <p className="text-lead text-sm leading-relaxed max-w-xl">
-              hàng xóm để lại đồ không dùng nữa — bạn ghé xem, lấy về dùng, hoặc đổi lấy thứ khác.
+              mọi người trong thành phố để lại đồ không dùng nữa — bạn ghé xem, lấy về dùng, hoặc đổi lấy thứ khác.
             </p>
           </div>
 
@@ -202,7 +202,7 @@ export default function HomePage() {
                 chưa có ai để lại gì ở đây
               </h3>
               <p className="text-lead text-sm">
-                bạn đăng món đầu tiên nhé — biết đâu hàng xóm đang cần.
+                bạn đăng món đầu tiên nhé — biết đâu ai đó trong thành phố đang cần.
               </p>
             </div>
           )}

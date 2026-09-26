@@ -10,7 +10,7 @@ export default function MapPage() {
       <div className="mb-6 pb-4 border-b border-lead/20">
         <h1 className="font-serif text-2xl font-bold text-ink mb-1">bản đồ khu vực</h1>
         <p className="text-lead text-sm">
-          mỗi chấm là một món đồ — click để xem ai đang để lại gì gần bạn.
+          mỗi chấm là một món đồ — click để xem ai đang để lại gì trong thành phố.
         </p>
       </div>
 

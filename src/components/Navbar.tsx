@@ -20,7 +20,7 @@ export default function Navbar() {
                 ShareZone
               </h1>
               <p className="font-serif italic text-lead text-sm mt-0.5">
-                bảng tin đồ dùng khu phố
+                bảng tin đồ dùng thành phố
               </p>
             </Link>
           </div>

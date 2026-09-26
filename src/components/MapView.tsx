@@ -54,7 +54,7 @@ function MapController({ userLocation }: { userLocation: [number, number] | null
 
   React.useEffect(() => {
     if (userLocation) {
-      map.flyTo(userLocation, 17, { duration: 1.5 });
+      map.flyTo(userLocation, 15, { duration: 1.5 });
     }
   }, [userLocation, map]);
 
@@ -175,7 +175,7 @@ export default function MapView({ items }: MapViewProps) {
       <div className="rounded-sm border border-lead/20 overflow-hidden" style={{ height: '500px' }}>
         <MapContainer
           center={center}
-          zoom={16}
+          zoom={12}
           style={{ height: '100%', width: '100%' }}
           scrollWheelZoom={true}
         >

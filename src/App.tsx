@@ -30,7 +30,7 @@ export default function App() {
           <footer className="border-t border-lead/20 py-8 mt-12">
             <div className="max-w-4xl mx-auto px-6 text-center">
               <p className="font-serif italic text-lead text-sm">
-                ShareZone — kết nối hàng xóm qua những món đồ nhỏ
+                ShareZone — kết nối người dân thành phố qua những món đồ nhỏ
               </p>
             </div>
           </footer>

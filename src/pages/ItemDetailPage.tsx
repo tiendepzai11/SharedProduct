@@ -174,7 +174,7 @@ export default function ItemDetailPage() {
             <h3 className="font-serif text-lg text-ink mb-2">xác nhận yêu cầu</h3>
             <p className="text-lead text-sm mb-6">
               bạn muốn nhận "<span className="text-ink font-medium">{item.title}</span>"?
-              chủ đồ sẽ thấy yêu cầu của bạn.
+              người đăng sẽ thấy yêu cầu của bạn.
             </p>
             <div className="flex gap-3">
               <button

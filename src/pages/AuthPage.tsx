@@ -46,7 +46,7 @@ export default function AuthPage() {
             {isLogin ? 'chào bạn trở lại' : 'tham gia bảng tin'}
           </h1>
           <p className="font-serif italic text-lead text-sm">
-            {isLogin ? 'đăng nhập để xem và đăng đồ' : 'tạo tài khoản để bắt đầu chia sẻ'}
+            {isLogin ? 'đăng nhập để xem và đăng đồ trong thành phố' : 'tạo tài khoản để bắt đầu chia sẻ'}
           </p>
         </div>
 
