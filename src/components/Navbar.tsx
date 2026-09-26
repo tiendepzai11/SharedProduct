@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useApp } from '../store/AppContext';
-import { MapPin, ClipboardList, Package, LogOut, MessageCircle } from 'lucide-react';
+import { MapPin, ClipboardList, Package, LogOut, MessageCircle, AlertCircle } from 'lucide-react';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 export default function Navbar() {
   const { currentUser, logout, getTotalUnreadCount } = useApp();
@@ -12,6 +13,23 @@ export default function Navbar() {
 
   return (
     <header className="border-b-2 border-ink/10 bg-paper">
+      {/* Supabase config warning banner */}
+      {!isSupabaseConfigured && (
+        <div className="bg-butter/20 border-b border-butter/30 px-6 py-2 flex items-center gap-2 text-xs text-ink-light">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>
+            <strong>Chế độ demo:</strong> Đang dùng localStorage.{' '}
+            <a
+              href="https://github.com/your-repo/blob/main/SUPABASE_SETUP.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-moss-dark"
+            >
+              Cấu hình Supabase →
+            </a>
+          </span>
+        </div>
+      )}
       <div className="max-w-4xl mx-auto px-6 py-6">
         <div className="flex items-start justify-between">
           {/* Left: Title like notebook cover */}
