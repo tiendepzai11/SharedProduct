@@ -1,1 +1,47 @@
 @import "tailwindcss";
+
+/* Leaflet custom marker styles */
+.custom-marker {
+  background: none !important;
+  border: none !important;
+}
+
+/* Leaflet popup custom styles */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px !important;
+  padding: 4px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+.leaflet-popup-content {
+  margin: 8px !important;
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Smooth animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
