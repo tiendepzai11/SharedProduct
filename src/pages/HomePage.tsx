@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../store/AppContext';
-import ItemCard from '../components/ItemCard';
+import ItemRow from '../components/ItemRow';
+import EmptyIllustration from '../components/EmptyIllustration';
 import { Category, TransactionType, ItemStatus } from '../types';
-import { Search, Filter, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { Search, SlidersHorizontal } from 'lucide-react';
 
 type SortOption = 'newest' | 'nearest';
 
@@ -11,7 +12,6 @@ export default function HomePage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<Category | 'all'>('all');
   const [transactionType, setTransactionType] = useState<TransactionType | 'all'>('all');
-  const [status, setStatus] = useState<ItemStatus | 'all'>('all');
   const [sort, setSort] = useState<SortOption>('newest');
   const [showFilters, setShowFilters] = useState(false);
 
@@ -27,7 +27,6 @@ export default function HomePage() {
     }
     if (category !== 'all') result = result.filter(item => item.category === category);
     if (transactionType !== 'all') result = result.filter(item => item.transaction_type === transactionType);
-    if (status !== 'all') result = result.filter(item => item.status === status);
 
     if (sort === 'newest') {
       result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -41,110 +40,96 @@ export default function HomePage() {
     }
 
     return result;
-  }, [items, search, category, transactionType, status, sort]);
+  }, [items, search, category, transactionType, sort]);
 
-  const categories: (Category | 'all')[] = ['all', 'sách', 'điện tử', 'đồ gia dụng', 'quần áo', 'khác'];
-  const transactionTypes: (TransactionType | 'all')[] = ['all', 'cho tặng', 'cho mượn', 'trao đổi'];
-  const statuses: (ItemStatus | 'all')[] = ['all', 'available', 'requested', 'completed'];
+  const categories: { value: Category | 'all'; label: string }[] = [
+    { value: 'all', label: 'tất cả' },
+    { value: 'sách', label: 'sách' },
+    { value: 'điện tử', label: 'điện tử' },
+    { value: 'đồ gia dụng', label: 'gia dụng' },
+    { value: 'quần áo', label: 'quần áo' },
+    { value: 'khác', label: 'khác' },
+  ];
 
-  const statusLabels: Record<string, string> = {
-    'all': 'Tất cả',
-    'available': 'Có sẵn',
-    'requested': 'Đã có người hỏi',
-    'completed': 'Đã trao xong',
-  };
+  const transactionTypes: { value: TransactionType | 'all'; label: string }[] = [
+    { value: 'all', label: 'tất cả' },
+    { value: 'cho tặng', label: 'cho tặng' },
+    { value: 'cho mượn', label: 'cho mượn' },
+    { value: 'trao đổi', label: 'trao đổi' },
+  ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      {/* Hero */}
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-3">
-          Chia sẻ đồ dùng trong{' '}
-          <span className="bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
-            khu dân cư
-          </span>
-        </h1>
-        <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-          Kết nối sinh viên trong ký túc xá. Cho tặng, cho mượn hoặc trao đổi đồ dùng với người ở gần bạn.
+    <div className="max-w-4xl mx-auto px-6 py-8">
+      {/* Page header - like top of notebook page */}
+      <div className="mb-8 pb-6 border-b border-lead/20">
+        <h2 className="font-serif text-2xl font-bold text-ink mb-2">
+          những món đồ đang chờ chủ mới
+        </h2>
+        <p className="text-lead text-sm leading-relaxed max-w-xl">
+          Hàng xóm để lại đồ không dùng nữa — bạn ghé xem, lấy về dùng, hoặc đổi lấy thứ khác.
         </p>
       </div>
 
-      {/* Search & Filters */}
+      {/* Search & filter bar */}
       <div className="mb-6 space-y-4">
         <div className="flex gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-lead" />
             <input
               type="text"
-              placeholder="Tìm kiếm đồ dùng..."
+              placeholder="tìm món đồ..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              className="w-full pl-9 pr-4 py-2.5 bg-paper-dark/50 border border-lead/20 rounded-sm text-sm text-ink placeholder:text-lead-light focus:outline-none focus:border-moss/50 focus:bg-paper transition-colors"
             />
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
-              showFilters ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-sm border text-sm transition-colors ${
+              showFilters
+                ? 'bg-butter/20 border-butter/40 text-ink'
+                : 'bg-paper-dark/50 border-lead/20 text-lead hover:text-ink hover:border-lead/40'
             }`}
           >
             <SlidersHorizontal className="w-4 h-4" />
-            <span className="hidden sm:inline">Bộ lọc</span>
+            <span className="hidden sm:inline">lọc</span>
           </button>
         </div>
 
         {showFilters && (
-          <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-4 shadow-sm animate-in fade-in">
+          <div className="bg-paper-dark/30 border border-lead/15 rounded-sm p-4 space-y-4">
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Danh mục</label>
+              <label className="text-xs text-lead mb-2 block">danh mục</label>
               <div className="flex flex-wrap gap-2">
                 {categories.map(cat => (
                   <button
-                    key={cat}
-                    onClick={() => setCategory(cat)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      category === cat
-                        ? 'bg-emerald-100 text-emerald-700 shadow-sm'
-                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                    key={cat.value}
+                    onClick={() => setCategory(cat.value)}
+                    className={`px-3 py-1 rounded-sm text-sm transition-colors ${
+                      category === cat.value
+                        ? 'bg-butter/30 text-ink font-medium'
+                        : 'bg-paper text-lead hover:text-ink hover:bg-paper-dark/50'
                     }`}
                   >
-                    {cat === 'all' ? 'Tất cả' : cat}
+                    {cat.label}
                   </button>
                 ))}
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Loại giao dịch</label>
+              <label className="text-xs text-lead mb-2 block">loại giao dịch</label>
               <div className="flex flex-wrap gap-2">
                 {transactionTypes.map(type => (
                   <button
-                    key={type}
-                    onClick={() => setTransactionType(type)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      transactionType === type
-                        ? 'bg-emerald-100 text-emerald-700 shadow-sm'
-                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                    key={type.value}
+                    onClick={() => setTransactionType(type.value)}
+                    className={`px-3 py-1 rounded-sm text-sm transition-colors ${
+                      transactionType === type.value
+                        ? 'bg-butter/30 text-ink font-medium'
+                        : 'bg-paper text-lead hover:text-ink hover:bg-paper-dark/50'
                     }`}
                   >
-                    {type === 'all' ? 'Tất cả' : type}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Trạng thái</label>
-              <div className="flex flex-wrap gap-2">
-                {statuses.map(s => (
-                  <button
-                    key={s}
-                    onClick={() => setStatus(s)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      status === s
-                        ? 'bg-emerald-100 text-emerald-700 shadow-sm'
-                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    {statusLabels[s]}
+                    {type.label}
                   </button>
                 ))}
               </div>
@@ -152,39 +137,38 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Sort */}
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            <span className="font-semibold text-gray-900">{filteredItems.length}</span> món đồ
-          </p>
-          <div className="flex items-center gap-2">
-            <ArrowUpDown className="w-4 h-4 text-gray-400" />
-            <select
-              value={sort}
-              onChange={e => setSort(e.target.value as SortOption)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-            >
-              <option value="newest">Mới đăng nhất</option>
-              <option value="nearest">Gần nhất</option>
-            </select>
-          </div>
+        {/* Sort & count */}
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-lead">
+            <span className="font-medium text-ink">{filteredItems.length}</span> món đồ
+          </span>
+          <select
+            value={sort}
+            onChange={e => setSort(e.target.value as SortOption)}
+            className="text-sm text-lead bg-transparent border-none focus:outline-none cursor-pointer hover:text-ink transition-colors"
+          >
+            <option value="newest">mới đăng trước</option>
+            <option value="nearest">gần trước</option>
+          </select>
         </div>
       </div>
 
-      {/* Grid */}
+      {/* Items list - notebook style */}
       {filteredItems.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {filteredItems.map(item => (
-            <ItemCard key={item.id} item={item} />
+        <div className="border-t border-lead/20">
+          {filteredItems.map((item, index) => (
+            <ItemRow key={item.id} item={item} />
           ))}
         </div>
       ) : (
         <div className="text-center py-16">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Filter className="w-8 h-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-700">Không tìm thấy món đồ nào</h3>
-          <p className="text-gray-500 mt-1">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+          <EmptyIllustration />
+          <h3 className="font-serif text-lg text-ink mb-2">
+            chưa có ai để lại gì ở đây
+          </h3>
+          <p className="text-lead text-sm">
+            bạn đăng món đầu tiên nhé — biết đâu hàng xóm đang cần.
+          </p>
         </div>
       )}
     </div>

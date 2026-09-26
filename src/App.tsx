@@ -14,7 +14,7 @@ export default function App() {
   return (
     <AppProvider>
       <HashRouter>
-        <div className="min-h-screen bg-gray-50/50">
+        <div className="min-h-screen bg-paper text-ink">
           <Navbar />
           <main>
             <Routes>
@@ -27,10 +27,10 @@ export default function App() {
               <Route path="/my-requests" element={<MyRequestsPage />} />
             </Routes>
           </main>
-          <footer className="border-t border-gray-100 py-6 mt-12">
-            <div className="max-w-7xl mx-auto px-4 text-center">
-              <p className="text-sm text-gray-400">
-                ShareZone © 2024 — Nền tảng chia sẻ đồ dùng trong khu dân cư
+          <footer className="border-t border-lead/20 py-8 mt-12">
+            <div className="max-w-4xl mx-auto px-6 text-center">
+              <p className="font-serif italic text-lead text-sm">
+                ShareZone — kết nối hàng xóm qua những món đồ nhỏ
               </p>
             </div>
           </footer>

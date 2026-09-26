@@ -1,23 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../store/AppContext';
-import { ArrowLeft, MapPin, Clock, User, Tag, MessageCircle, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, User, CheckCircle, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-
-const categoryEmoji: Record<string, string> = {
-  'sách': '📚',
-  'điện tử': '📱',
-  'đồ gia dụng': '🏠',
-  'quần áo': '👕',
-  'khác': '📦',
-};
-
-const statusConfig: Record<string, { label: string; color: string; bgColor: string }> = {
-  'available': { label: 'Đang có sẵn', color: 'text-green-700', bgColor: 'bg-green-50 border-green-200' },
-  'requested': { label: 'Đã có người hỏi', color: 'text-yellow-700', bgColor: 'bg-yellow-50 border-yellow-200' },
-  'completed': { label: 'Đã trao đổi xong', color: 'text-gray-500', bgColor: 'bg-gray-50 border-gray-200' },
-};
 
 export default function ItemDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -28,18 +14,29 @@ export default function ItemDetailPage() {
   const item = getItemById(id || '');
   if (!item) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        <h2 className="text-2xl font-bold text-gray-700">Không tìm thấy món đồ</h2>
-        <Link to="/" className="text-emerald-600 hover:underline mt-4 inline-block">← Về trang chủ</Link>
+      <div className="max-w-4xl mx-auto px-6 py-16 text-center">
+        <h2 className="font-serif text-xl text-ink">không tìm thấy món đồ này</h2>
+        <Link to="/" className="text-moss text-sm hover:underline mt-4 inline-block">← về trang chủ</Link>
       </div>
     );
   }
 
   const owner = getUserById(item.owner_id);
-  const statusInfo = statusConfig[item.status];
   const isOwner = currentUser?.id === item.owner_id;
   const itemRequests = getRequestsForItem(item.id);
   const hasRequested = currentUser ? itemRequests.some(r => r.requester_id === currentUser.id) : false;
+
+  const stampClass = item.status === 'completed'
+    ? 'stamp stamp-completed'
+    : item.status === 'requested'
+    ? 'stamp stamp-requested'
+    : 'stamp stamp-available';
+
+  const stampText = item.status === 'completed'
+    ? 'đã trao xong'
+    : item.status === 'requested'
+    ? 'có người hỏi'
+    : 'có sẵn';
 
   const handleRequest = () => {
     if (!currentUser) {
@@ -55,27 +52,19 @@ export default function ItemDetailPage() {
     setShowConfirm(false);
   };
 
-  const handleApprove = (requestId: string) => {
-    updateRequestStatus(requestId, 'approved');
-  };
-
-  const handleReject = (requestId: string) => {
-    updateRequestStatus(requestId, 'rejected');
-  };
-
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-4xl mx-auto px-6 py-8">
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-6 transition-colors"
+        className="flex items-center gap-2 text-lead hover:text-ink mb-6 transition-colors text-sm"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span className="text-sm">Quay lại</span>
+        quay lại
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Image */}
-        <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-lg">
+        <div className="aspect-square rounded-sm overflow-hidden bg-paper-dark border border-lead/15">
           <img
             src={item.image_url}
             alt={item.title}
@@ -86,42 +75,40 @@ export default function ItemDetailPage() {
         {/* Info */}
         <div className="space-y-5">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusInfo.bgColor} ${statusInfo.color}`}>
-                {statusInfo.label}
-              </span>
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                {categoryEmoji[item.category]} {item.category}
-              </span>
+            <div className={`mb-3 ${stampClass}`}>
+              {stampText}
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">{item.title}</h1>
+            <h1 className="font-serif text-3xl font-bold text-ink leading-tight">{item.title}</h1>
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Tag className="w-4 h-4" />
-            <span className="font-medium capitalize">{item.transaction_type}</span>
+          <div className="text-sm text-lead">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-butter/20 rounded-sm text-ink-light">
+              {item.category}
+            </span>
+            <span className="mx-2">·</span>
+            <span className="capitalize">{item.transaction_type}</span>
           </div>
 
-          <div className="bg-gray-50 rounded-xl p-4">
-            <h3 className="font-semibold text-gray-700 mb-2">Mô tả</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+          <div className="border-t border-lead/20 pt-4">
+            <h3 className="text-sm text-lead mb-2">mô tả</h3>
+            <p className="text-ink leading-relaxed">{item.description}</p>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 text-sm">
-              <MapPin className="w-4 h-4 text-emerald-500" />
-              <span className="text-gray-600">{item.location_label}</span>
+          <div className="space-y-2 text-sm text-lead border-t border-lead/20 pt-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-moss" />
+              <span>{item.location_label}</span>
             </div>
-            <div className="flex items-center gap-3 text-sm">
-              <Clock className="w-4 h-4 text-emerald-500" />
-              <span className="text-gray-600">
-                Đăng {formatDistanceToNow(new Date(item.created_at), { addSuffix: true, locale: vi })}
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-moss" />
+              <span>
+                đăng {formatDistanceToNow(new Date(item.created_at), { addSuffix: true, locale: vi })}
               </span>
             </div>
             {owner && (
-              <div className="flex items-center gap-3 text-sm">
-                <User className="w-4 h-4 text-emerald-500" />
-                <span className="text-gray-600">{owner.name}</span>
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-moss" />
+                <span>{owner.name}</span>
               </div>
             )}
           </div>
@@ -130,38 +117,37 @@ export default function ItemDetailPage() {
           {!isOwner && item.status === 'available' && (
             <button
               onClick={handleRequest}
-              className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-emerald-200 transition-all duration-200 flex items-center justify-center gap-2"
+              className="w-full py-3 bg-moss text-paper font-medium rounded-sm hover:bg-moss-dark transition-colors"
             >
-              <MessageCircle className="w-5 h-5" />
-              Tôi muốn món này
+              tôi muốn món này
             </button>
           )}
 
           {isOwner && item.status === 'requested' && (
-            <div className="border border-gray-200 rounded-xl p-4 space-y-3">
-              <h3 className="font-semibold text-gray-700">Yêu cầu nhận đồ</h3>
+            <div className="border border-lead/20 rounded-sm p-4 space-y-3">
+              <h3 className="text-sm font-medium text-ink">yêu cầu nhận đồ</h3>
               {itemRequests.filter(r => r.status === 'pending').map(req => {
                 const requester = getUserById(req.requester_id);
                 return (
-                  <div key={req.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                  <div key={req.id} className="flex items-center justify-between bg-paper-dark/40 rounded-sm p-3">
                     <div>
-                      <p className="font-medium text-sm text-gray-800">{requester?.name || 'Ẩn danh'}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-sm text-ink">{requester?.name || 'ẩn danh'}</p>
+                      <p className="text-xs text-lead">
                         {formatDistanceToNow(new Date(req.created_at), { addSuffix: true, locale: vi })}
                       </p>
                     </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleApprove(req.id)}
-                        className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
-                        title="Xác nhận"
+                        onClick={() => updateRequestStatus(req.id, 'approved')}
+                        className="p-2 bg-moss/10 text-moss rounded-sm hover:bg-moss/20 transition-colors"
+                        title="xác nhận"
                       >
                         <CheckCircle className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleReject(req.id)}
-                        className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
-                        title="Từ chối"
+                        onClick={() => updateRequestStatus(req.id, 'rejected')}
+                        className="p-2 bg-terracotta/10 text-terracotta rounded-sm hover:bg-terracotta/20 transition-colors"
+                        title="từ chối"
                       >
                         <XCircle className="w-4 h-4" />
                       </button>
@@ -173,9 +159,9 @@ export default function ItemDetailPage() {
           )}
 
           {isOwner && item.status === 'completed' && (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-              <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
-              <p className="text-green-700 font-medium">Đã trao đổi thành công!</p>
+            <div className="bg-moss/5 border border-moss/20 rounded-sm p-4 text-center">
+              <CheckCircle className="w-8 h-8 text-moss mx-auto mb-2" />
+              <p className="text-moss font-medium text-sm">đã trao đổi thành công</p>
             </div>
           )}
         </div>
@@ -183,24 +169,25 @@ export default function ItemDetailPage() {
 
       {/* Confirm modal */}
       {showConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Xác nhận yêu cầu</h3>
-            <p className="text-gray-600 text-sm mb-6">
-              Bạn muốn nhận món "<span className="font-semibold">{item.title}</span>"? Chủ đồ sẽ nhận được thông báo.
+        <div className="fixed inset-0 bg-ink/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-paper rounded-sm border border-lead/20 p-6 max-w-sm w-full shadow-lg">
+            <h3 className="font-serif text-lg text-ink mb-2">xác nhận yêu cầu</h3>
+            <p className="text-lead text-sm mb-6">
+              bạn muốn nhận "<span className="text-ink font-medium">{item.title}</span>"?
+              chủ đồ sẽ thấy yêu cầu của bạn.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 py-2.5 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2.5 border border-lead/20 text-ink font-medium rounded-sm hover:bg-paper-dark/50 transition-colors"
               >
-                Hủy
+                hủy
               </button>
               <button
                 onClick={confirmRequest}
-                className="flex-1 py-2.5 bg-emerald-500 text-white font-medium rounded-xl hover:bg-emerald-600 transition-colors"
+                className="flex-1 py-2.5 bg-moss text-paper font-medium rounded-sm hover:bg-moss-dark transition-colors"
               >
-                Xác nhận
+                xác nhận
               </button>
             </div>
           </div>

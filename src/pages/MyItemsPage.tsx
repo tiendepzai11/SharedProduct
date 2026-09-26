@@ -1,14 +1,14 @@
 import React from 'react';
 import { useApp } from '../store/AppContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Package, Eye, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 
 const statusConfig: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  'available': { label: 'Có sẵn', icon: <Clock className="w-4 h-4" />, color: 'text-green-600 bg-green-50' },
-  'requested': { label: 'Đã có người hỏi', icon: <AlertCircle className="w-4 h-4" />, color: 'text-yellow-600 bg-yellow-50' },
-  'completed': { label: 'Đã trao xong', icon: <CheckCircle className="w-4 h-4" />, color: 'text-gray-500 bg-gray-50' },
+  'available': { label: 'có sẵn', icon: <Clock className="w-3.5 h-3.5" />, color: 'text-moss bg-moss/10' },
+  'requested': { label: 'có người hỏi', icon: <AlertCircle className="w-3.5 h-3.5" />, color: 'text-terracotta bg-terracotta/10' },
+  'completed': { label: 'đã trao xong', icon: <CheckCircle className="w-3.5 h-3.5" />, color: 'text-lead bg-lead/10' },
 };
 
 export default function MyItemsPage() {
@@ -23,85 +23,76 @@ export default function MyItemsPage() {
   const myItems = getItemsByOwner(currentUser.id);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="flex items-center justify-between mb-6 pb-4 border-b border-lead/20">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Đồ tôi đăng</h1>
-          <p className="text-gray-500 text-sm mt-1">{myItems.length} món đồ</p>
+          <h1 className="font-serif text-2xl font-bold text-ink">đồ tôi đăng</h1>
+          <p className="text-lead text-sm mt-0.5">{myItems.length} món đồ</p>
         </div>
         <Link
           to="/add"
-          className="px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-xl hover:bg-emerald-600 transition-colors"
+          className="px-4 py-2 bg-moss text-paper text-sm font-medium rounded-sm hover:bg-moss-dark transition-colors"
         >
-          + Đăng mới
+          + đăng mới
         </Link>
       </div>
 
       {myItems.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-          <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700">Chưa đăng món đồ nào</h3>
-          <p className="text-gray-500 mt-1">Bắt đầu chia sẻ đồ dùng với hàng xóm!</p>
+        <div className="text-center py-16 border border-lead/15 rounded-sm bg-paper">
+          <p className="text-lead text-sm mb-4">chưa đăng món đồ nào</p>
           <Link
             to="/add"
-            className="mt-4 inline-block px-6 py-2.5 bg-emerald-500 text-white text-sm font-medium rounded-xl hover:bg-emerald-600 transition-colors"
+            className="inline-block px-6 py-2.5 bg-moss text-paper text-sm font-medium rounded-sm hover:bg-moss-dark transition-colors"
           >
-            Đăng món đầu tiên
+            đăng món đầu tiên
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="border-t border-lead/20">
           {myItems.map(item => {
             const status = statusConfig[item.status];
             const requests = getRequestsForItem(item.id);
             const pendingRequests = requests.filter(r => r.status === 'pending');
 
             return (
-              <div key={item.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="flex flex-col sm:flex-row">
-                  <Link to={`/item/${item.id}`} className="sm:w-40 h-32 sm:h-auto flex-shrink-0">
+              <div key={item.id} className="py-5 border-b border-lead/20">
+                <div className="flex gap-4">
+                  <Link to={`/item/${item.id}`} className="flex-shrink-0 w-20 h-20 rounded-sm overflow-hidden bg-paper-dark">
                     <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
                   </Link>
-                  <div className="flex-1 p-4">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <Link to={`/item/${item.id}`} className="font-semibold text-gray-900 hover:text-emerald-600 transition-colors">
+                      <div className="min-w-0">
+                        <Link to={`/item/${item.id}`} className="font-serif text-lg font-semibold text-ink hover:text-moss-dark transition-colors">
                           {item.title}
                         </Link>
                         <div className="flex items-center gap-2 mt-1.5">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-medium ${status.color}`}>
                             {status.icon}
                             {status.label}
                           </span>
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-lead">
                             {formatDistanceToNow(new Date(item.created_at), { addSuffix: true, locale: vi })}
                           </span>
                         </div>
                       </div>
-                      <Link
-                        to={`/item/${item.id}`}
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                      >
-                        <Eye className="w-4 h-4" />
-                        Xem
-                      </Link>
                     </div>
 
                     {pendingRequests.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-gray-100">
-                        <p className="text-xs font-medium text-gray-500 mb-2">
+                      <div className="mt-3 pt-3 border-t border-lead/15">
+                        <p className="text-xs text-lead mb-2">
                           {pendingRequests.length} yêu cầu đang chờ:
                         </p>
                         <div className="flex flex-wrap gap-2">
                           {pendingRequests.map(req => {
                             const requester = getUserById(req.requester_id);
                             return (
-                              <div key={req.id} className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
-                                <span className="text-sm text-gray-700">{requester?.name || 'Ẩn danh'}</span>
+                              <div key={req.id} className="flex items-center gap-2 bg-paper-dark/40 rounded-sm px-3 py-2">
+                                <span className="text-sm text-ink">{requester?.name || 'ẩn danh'}</span>
                                 <button
                                   onClick={() => updateRequestStatus(req.id, 'approved')}
-                                  className="p-1 text-green-600 hover:bg-green-100 rounded transition-colors"
-                                  title="Xác nhận"
+                                  className="p-1 text-moss hover:bg-moss/10 rounded-sm transition-colors"
+                                  title="xác nhận"
                                 >
                                   <CheckCircle className="w-3.5 h-3.5" />
                                 </button>
