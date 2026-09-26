@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // ============================================================
 // CẤU HÌNH SUPABASE
@@ -16,15 +16,37 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 // Kiểm tra đã cấu hình hay chưa
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
-// Tạo Supabase client
-// Nếu chưa cấu hình, client vẫn được tạo nhưng các hàm gọi API sẽ không hoạt động
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-});
+// Tạo Supabase client - chỉ khi đã cấu hình
+let supabaseClient: SupabaseClient | null = null;
+
+if (isSupabaseConfigured) {
+  try {
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to initialize Supabase client:', error);
+    supabaseClient = null;
+  }
+}
+
+// Export supabase client (có thể là null)
+export const supabase = supabaseClient;
+
+// Helper function để kiểm tra và throw error nếu chưa cấu hình
+function getClient(): SupabaseClient {
+  if (!supabaseClient) {
+    throw new Error(
+      'Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file. ' +
+      'See SUPABASE_SETUP.md for instructions.'
+    );
+  }
+  return supabaseClient;
+}
 
 // ============================================================
 // CÁC HÀM HELPER - SẼ DÙNG KHI CÓ CREDENTIALS
@@ -32,36 +54,44 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 // Auth
 export const signUp = async (email: string, password: string, name: string) => {
-  return supabase.auth.signUp({
+  const client = getClient();
+  return client.auth.signUp({
     email,
     password,
-    options: { data: { name } },
+    options: {
+      data: { name },
+    },
   });
 };
 
 export const signIn = async (email: string, password: string) => {
-  return supabase.auth.signInWithPassword({ email, password });
+  const client = getClient();
+  return client.auth.signInWithPassword({ email, password });
 };
 
 export const signOut = async () => {
-  return supabase.auth.signOut();
+  const client = getClient();
+  return client.auth.signOut();
 };
 
 export const getCurrentUser = async () => {
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
+  const client = getClient();
+  const result = await client.auth.getUser();
+  return result.data.user;
 };
 
 // Items
 export const getItems = async () => {
-  return supabase
+  const client = getClient();
+  return client
     .from('items')
     .select('*')
     .order('created_at', { ascending: false });
 };
 
 export const getItemById = async (id: string) => {
-  return supabase
+  const client = getClient();
+  return client
     .from('items')
     .select('*, owner:users(*)')
     .eq('id', id)
@@ -78,10 +108,12 @@ export const createItem = async (item: {
   longitude: number;
   location_label: string;
 }) => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const client = getClient();
+  const authResult = await client.auth.getUser();
+  const user = authResult.data.user;
   if (!user) throw new Error('Not authenticated');
 
-  return supabase
+  return client
     .from('items')
     .insert({ ...item, owner_id: user.id })
     .select()
@@ -89,7 +121,8 @@ export const createItem = async (item: {
 };
 
 export const updateItemStatus = async (id: string, status: string) => {
-  return supabase
+  const client = getClient();
+  return client
     .from('items')
     .update({ status })
     .eq('id', id)
@@ -99,10 +132,12 @@ export const updateItemStatus = async (id: string, status: string) => {
 
 // Requests
 export const createRequest = async (itemId: string) => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const client = getClient();
+  const authResult = await client.auth.getUser();
+  const user = authResult.data.user;
   if (!user) throw new Error('Not authenticated');
 
-  return supabase
+  return client
     .from('requests')
     .insert({ item_id: itemId, requester_id: user.id, status: 'pending' })
     .select()
@@ -110,7 +145,8 @@ export const createRequest = async (itemId: string) => {
 };
 
 export const updateRequestStatus = async (id: string, status: string) => {
-  return supabase
+  const client = getClient();
+  return client
     .from('requests')
     .update({ status })
     .eq('id', id)
@@ -120,10 +156,12 @@ export const updateRequestStatus = async (id: string, status: string) => {
 
 // Conversations & Messages
 export const getConversations = async () => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const client = getClient();
+  const authResult = await client.auth.getUser();
+  const user = authResult.data.user;
   if (!user) throw new Error('Not authenticated');
 
-  return supabase
+  return client
     .from('conversations')
     .select('*, item:items(*), participants:conversation_participants(user_id, users(*))')
     .or(`participant_1.eq.${user.id},participant_2.eq.${user.id}`)
@@ -131,7 +169,8 @@ export const getConversations = async () => {
 };
 
 export const getMessages = async (conversationId: string) => {
-  return supabase
+  const client = getClient();
+  return client
     .from('messages')
     .select('*, sender:users(*)')
     .eq('conversation_id', conversationId)
@@ -139,10 +178,12 @@ export const getMessages = async (conversationId: string) => {
 };
 
 export const sendMessage = async (conversationId: string, content: string) => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const client = getClient();
+  const authResult = await client.auth.getUser();
+  const user = authResult.data.user;
   if (!user) throw new Error('Not authenticated');
 
-  return supabase
+  return client
     .from('messages')
     .insert({ conversation_id: conversationId, sender_id: user.id, content })
     .select()
@@ -151,14 +192,16 @@ export const sendMessage = async (conversationId: string, content: string) => {
 
 // Storage - Upload ảnh
 export const uploadImage = async (file: File, path: string) => {
-  return supabase.storage
+  const client = getClient();
+  return client.storage
     .from('item-images')
     .upload(path, file, { upsert: true });
 };
 
 export const getImageUrl = (path: string) => {
-  const { data } = supabase.storage
+  const client = getClient();
+  const result = client.storage
     .from('item-images')
     .getPublicUrl(path);
-  return data.publicUrl;
+  return result.data.publicUrl;
 };
