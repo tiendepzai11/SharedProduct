@@ -1,0 +1,250 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #FAF6EE;
+  --color-paper-dark: #F0EBE0;
+  --color-ink: #262019;
+  --color-ink-light: #3D3529;
+  --color-moss: #566B4F;
+  --color-moss-light: #6B8363;
+  --color-moss-dark: #3F5039;
+  --color-terracotta: #B5622C;
+  --color-terracotta-light: #D47A3F;
+  --color-butter: #D9A441;
+  --color-butter-light: #E5BC66;
+  --color-lead: #8C8577;
+  --color-lead-light: #A8A090;
+  --color-lead-dark: #6B655A;
+
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background-color: #FAF6EE;
+  color: #262019;
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Notebook paper texture */
+.notebook-bg {
+  background-color: #FAF6EE;
+  background-image:
+    repeating-linear-gradient(
+      transparent,
+      transparent 31px,
+      rgba(140, 133, 119, 0.12) 31px,
+      rgba(140, 133, 119, 0.12) 32px
+    );
+}
+
+/* Stamp / seal effect for status */
+.stamp {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: none;
+  transform: rotate(-3deg);
+  opacity: 0.85;
+}
+
+.stamp::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border: 1px dashed currentColor;
+  border-radius: 4px;
+  opacity: 0.4;
+}
+
+.stamp-completed {
+  color: #B5622C;
+  transform: rotate(-4deg);
+}
+
+.stamp-completed::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -4px;
+  right: -4px;
+  height: 2px;
+  background: #B5622C;
+  opacity: 0.6;
+  transform: rotate(-1deg);
+}
+
+.stamp-requested {
+  color: #B5622C;
+  transform: rotate(-2deg);
+}
+
+.stamp-available {
+  color: #566B4F;
+  transform: rotate(-1deg);
+}
+
+/* Pin effect for new items */
+@keyframes pinDrop {
+  0% {
+    transform: translateY(-20px) rotate(-5deg);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(2px) rotate(1deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.item-pinned {
+  animation: pinDrop 0.5s ease-out;
+}
+
+/* Tape effect */
+.tape {
+  position: relative;
+}
+
+.tape::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: 40px;
+  height: 12px;
+  background: rgba(217, 164, 65, 0.4);
+  border-radius: 1px;
+}
+
+/* Focus states */
+*:focus-visible {
+  outline: 2px solid #566B4F;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Handwritten underline */
+.hand-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.hand-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #D9A441;
+  border-radius: 1px;
+  transform: rotate(-0.5deg);
+}
+
+/* Leaflet overrides */
+.custom-marker {
+  background: none !important;
+  border: none !important;
+}
+
+/* Map marker styles */
+.map-marker {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #FAF6EE;
+  box-shadow: 0 2px 6px rgba(38,32,25,0.25);
+  transition: transform 0.15s ease;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.map-marker-available {
+  background: #566B4F;
+}
+
+.map-marker-requested {
+  background: #B5622C;
+}
+
+/* User location marker - xanh dương với hiệu ứng pulse */
+.map-marker-user {
+  width: 20px;
+  height: 20px;
+  background: #3b82f6;
+  border: 3px solid #FAF6EE;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), 0 2px 8px rgba(38,32,25,0.3);
+  animation: userPulse 2s ease-in-out infinite;
+}
+
+@keyframes userPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), 0 2px 8px rgba(38,32,25,0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.15), 0 2px 8px rgba(38,32,25,0.3);
+  }
+}
+
+/* Hover effect - phồng nhẹ khi hover */
+.map-marker:hover {
+  transform: scale(1.1);
+}
+
+/* Also scale when parent is hovered */
+.custom-marker:hover .map-marker {
+  transform: scale(1.1);
+}
+
+.leaflet-popup-content-wrapper {
+  background: #FAF6EE !important;
+  border: 1px solid rgba(140, 133, 119, 0.3) !important;
+  border-radius: 2px !important;
+  box-shadow: 2px 3px 8px rgba(38, 32, 25, 0.1) !important;
+  transform: rotate(-1deg);
+  font-family: 'Inter', sans-serif !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px !important;
+  color: #262019 !important;
+}
+
+.leaflet-popup-tip {
+  background: #FAF6EE !important;
+  border: 1px solid rgba(140, 133, 119, 0.3) !important;
+  box-shadow: none !important;
+}
+
+.leaflet-popup-close-button {
+  color: #8C8577 !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FAF6EE;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8C8577;
+  border-radius: 3px;
+}
